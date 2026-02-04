@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initRevealAnimations();
   initOfficeSlideshow();
+  initStatsAnimation();
   initWhyUsAnimation();
 });
 
@@ -130,33 +131,59 @@ function initRevealAnimations() {
 }
 
 /**
- * Optional: Counter animation for stats
- * Uncomment and call if needed
+ * Stats Counter Animation
  */
-/*
+function initStatsAnimation() {
+  const statsSection = document.querySelector('.hero__stats');
+  if (!statsSection) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        animateCounters();
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  observer.observe(statsSection);
+}
+
 function animateCounters() {
   const counters = document.querySelectorAll('.hero__stat-number');
-  
+
   counters.forEach(counter => {
-    const target = parseInt(counter.textContent);
+    const rawText = counter.innerText;
+    const target = parseInt(rawText.replace(/\D/g, '')); // Extract number
+    const suffix = rawText.includes('+') ? '+' : '';
+
     const duration = 2000;
-    const step = target / (duration / 16);
-    let current = 0;
-    
+    const frameDuration = 1000 / 60;
+    const totalFrames = Math.round(duration / frameDuration);
+
+    let frame = 0;
+
+    // Ease out quart
+    const easeOutQuart = t => 1 - (--t) * t * t * t;
+
     const updateCounter = () => {
-      current += step;
-      if (current < target) {
-        counter.textContent = Math.floor(current) + '+';
+      frame++;
+      const progress = frame / totalFrames;
+      const easedProgress = easeOutQuart(progress);
+
+      const current = Math.round(easedProgress * target);
+
+      if (frame < totalFrames) {
+        counter.textContent = current + suffix;
         requestAnimationFrame(updateCounter);
       } else {
-        counter.textContent = target + '+';
+        counter.textContent = target + suffix;
       }
     };
-    
+
     updateCounter();
   });
 }
-*/
 
 /**
  * Office slideshow with automatic transitions
@@ -166,16 +193,12 @@ function initOfficeSlideshow() {
   if (!slideshow) return;
 
   const slides = slideshow.querySelectorAll('.office__slide');
-  const dots = slideshow.querySelectorAll('.office__dot');
   let currentSlide = 0;
   const slideInterval = 3000; // 3 seconds
 
   function showSlide(index) {
     slides.forEach((slide, i) => {
       slide.classList.toggle('active', i === index);
-    });
-    dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === index);
     });
   }
 
@@ -186,17 +209,6 @@ function initOfficeSlideshow() {
 
   // Auto-advance slides
   let autoPlay = setInterval(nextSlide, slideInterval);
-
-  // Click on dots to change slide
-  dots.forEach((dot, index) => {
-    dot.addEventListener('click', () => {
-      currentSlide = index;
-      showSlide(currentSlide);
-      // Reset autoplay
-      clearInterval(autoPlay);
-      autoPlay = setInterval(nextSlide, slideInterval);
-    });
-  });
 }
 
 /**

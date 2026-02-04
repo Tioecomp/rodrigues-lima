@@ -485,8 +485,8 @@ section {
   z-index: 1;
   text-align: center;
   padding-top: var(--space-5xl);
-  padding-bottom: var(--space-3xl);
-  /* Match stats top spacing */
+  padding-bottom: 0;
+  /* Remove padding as requested */
 }
 
 .hero__subtitle {
