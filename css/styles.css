@@ -1069,8 +1069,8 @@ section {
 .why-us__timeline::before {
   content: '';
   position: absolute;
-  top: 50px;
-  /* Center on 100px circles */
+  top: calc(50px + var(--space-lg));
+  /* Center on circle + padding */
   left: 50%;
   transform: translateX(-50%);
   width: 55%;
@@ -1111,6 +1111,15 @@ section {
   background-color: var(--color-accent-dark);
   border-color: var(--color-accent-dark);
   color: var(--color-background);
+}
+
+.why-card__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 4rem;
+  /* Ensure vertical alignment for 1 or 2 lines */
+  margin-bottom: var(--space-sm);
 }
 
 /* ---------- Office Section ---------- */
