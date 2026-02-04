@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initSmoothScroll();
   initRevealAnimations();
+  initOfficeSlideshow();
+  initWhyUsAnimation();
 });
 
 /**
@@ -66,21 +68,21 @@ function initMobileMenu() {
  */
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       const href = this.getAttribute('href');
-      
+
       // Skip if it's just '#'
       if (href === '#') return;
-      
+
       const target = document.querySelector(href);
-      
+
       if (target) {
         e.preventDefault();
-        
+
         // Calculate offset for fixed header
         const headerHeight = document.getElementById('header').offsetHeight;
         const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
-        
+
         window.scrollTo({
           top: targetPosition,
           behavior: 'smooth'
@@ -96,7 +98,7 @@ function initSmoothScroll() {
 function initRevealAnimations() {
   // Check for reduced motion preference
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  
+
   if (prefersReducedMotion) {
     // Show all elements immediately if user prefers reduced motion
     document.querySelectorAll('.reveal').forEach(el => {
@@ -106,7 +108,7 @@ function initRevealAnimations() {
   }
 
   const revealElements = document.querySelectorAll('.reveal');
-  
+
   const observerOptions = {
     root: null,
     rootMargin: '0px 0px -100px 0px',
@@ -155,3 +157,80 @@ function animateCounters() {
   });
 }
 */
+
+/**
+ * Office slideshow with automatic transitions
+ */
+function initOfficeSlideshow() {
+  const slideshow = document.getElementById('officeSlideshow');
+  if (!slideshow) return;
+
+  const slides = slideshow.querySelectorAll('.office__slide');
+  const dots = slideshow.querySelectorAll('.office__dot');
+  let currentSlide = 0;
+  const slideInterval = 3000; // 3 seconds
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+  }
+
+  function nextSlide() {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  }
+
+  // Auto-advance slides
+  let autoPlay = setInterval(nextSlide, slideInterval);
+
+  // Click on dots to change slide
+  dots.forEach((dot, index) => {
+    dot.addEventListener('click', () => {
+      currentSlide = index;
+      showSlide(currentSlide);
+      // Reset autoplay
+      clearInterval(autoPlay);
+      autoPlay = setInterval(nextSlide, slideInterval);
+    });
+  });
+}
+
+/**
+ * Why Us section - Circle activation animation
+ */
+function initWhyUsAnimation() {
+  const numbers = document.querySelectorAll('.why-card__number');
+  if (numbers.length === 0) return;
+
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.5
+  };
+
+  let hasAnimated = false;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !hasAnimated) {
+        hasAnimated = true;
+        // Animate circles one by one
+        numbers.forEach((num, index) => {
+          setTimeout(() => {
+            num.classList.add('active');
+          }, index * 1500); // 1.5s delay between each
+        });
+        observer.disconnect();
+      }
+    });
+  }, observerOptions);
+
+  const whyUsSection = document.querySelector('.why-us');
+  if (whyUsSection) {
+    observer.observe(whyUsSection);
+  }
+}
